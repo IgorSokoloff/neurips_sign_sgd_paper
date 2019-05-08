@@ -10,6 +10,7 @@ from logreg_functions import *
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
+size = comm.Get_size()
 
 parser = argparse.ArgumentParser(description='Run sign sgd algorithm')
 parser.add_argument('--max_it', action='store', dest='max_it', type=int, help='Maximum number of iterations')
@@ -58,7 +59,6 @@ loss_func = "log-reg"
 
 stepsize = "var-step"
 
-
 def sample_sgrad(w, X, y, la, batch=1):
     #if log loss
     return sample_logreg_sgrad(w, X, y, la)
@@ -67,21 +67,18 @@ def update_stepsize(gamma_0, it):
     #if var-step
     return gamma_0/np.sqrt(it + 1)
 
-
 #######################
-
-def generate_update(w, X, y, la, gamma_0, it,batch=1):
-    s_grad = sample_logreg_sgrad(w, X, y, la)
-    gamma = update_stepsize(gamma_0, it)
-
-    w = w - gamma * sign(s_grad)
-
-    return w
 
 def sign(arr):
     assert (isinstance(arr, (np.ndarray, np.generic) ))
     arr[arr==0] = 1
-    return np.sign(arr)
+    arr = np.sign(arr)
+    return arr.astype('int8')
+
+def generate_update(w, X, y, s_grad, la, gamma_0, it,batch=1):
+    gamma = update_stepsize(gamma_0, it)
+
+    return w - gamma * sign(s_grad)
 
 n_workers = comm.Get_size() - 1
 user_dir = os.path.expanduser('~/')
@@ -101,20 +98,19 @@ if rank == 0:
     X = np.load(data_path + 'X.npy')
     y = np.load(data_path + 'y.npy')
     N_X, d = X.shape
-    n_workers_total = comm.reduce(0)
+    data_length_total = comm.reduce(0)
+    print("data_length_total: {0}; lambda: {1}", data_length_total, L)
 
-    print ("total number of workers:", n_workers_total)
-
-    assert n_workers_total == N, (N, n_workers_total)
-    assert N_X == N
+    #assert data_length_total == N, (N, data_length_total)
+    #assert N_X == N
 
 if rank > 0:
     X = np.load(data_path + 'Xs_' + str(rank - 1) + '.npy')
     y = np.load(data_path + 'ys_' + str(rank - 1) + '.npy')
     n_i, d = X.shape
-    h_i = np.zeros(d)
+
     comm.reduce(n_i, root=0)
-    w = np.zeros(shape=d)
+    w = np.zeros(d)# here we will broadcast it from server
     it = 0
     #grads = [np.zeros(d) for i in range(n_i)] ????
 
@@ -122,59 +118,50 @@ if rank > 0:
         comm.Bcast(w, root=0) # get_w from server
         if np.isnan(w).any():
             break
+        print("rank: {0}; recieve from server: {1}".format(rank, w))
 
-        w = generate_update(w, X, y, Ls[rank-1], gamma_0, it,batch=1)
+        s_grad_sign = sign(sample_sgrad(w, X, y, Ls[rank-1]))
 
+        print("rank: {0}; send to server: {1}".format(rank, s_grad_sign))
+        comm.Gather(s_grad_sign, None, root=0)
         #grads[i] = np.copy(stoch_grad_w)
 
         it += 1
 
 if rank == 0:
     w = np.zeros(d)
+    s_grad_sign = np.zeros(shape=d, dtype='int8')
+
     ws = [np.copy(w)]
     information_sent = [0]
     ts = [0]
     its = [0]
 
-    full_blocks = d // block_size
-    has_tailing_block = ((d % block_size) != 0)
-    n_blocks = full_blocks + has_tailing_block
-    n_bytes = (2 * d) // 8 + (((2 * d) % 8) != 0)
+    n_bytes = d
+    send_buff = s_grad_sign
 
-    information = 0
+    recv_buff = np.empty(shape=[size, n_bytes], dtype='int8')
+
     it = 0
     t_start = time.time()
     t = time.time() - t_start
-    deltas_norms = np.empty(shape=[n_workers + 1, n_blocks])
-    deltas_signs = np.empty(shape=[n_workers + 1, n_bytes], dtype='uint8')
-
-    print(deltas_signs.shape)
-
-    buff_norm = np.empty(shape=n_blocks)
-    buff_signs = np.empty(shape=n_bytes, dtype='uint8')
-
-    h = np.zeros(d)
 
     while (it < max_it) and (t < max_t):
-        lr = theta / L_max
 
         assert len(w) == d
         comm.Bcast(w)
-        comm.Gather(buff_norm, deltas_norms)
-        comm.Gather(buff_signs, deltas_signs)
 
-        Delta_i_hats = [decompress(deltas_norms[worker], deltas_signs[worker], d, p_norm, block_size) for worker in
-                        range(1, n_workers + 1)]
-        Delta_hat = np.mean(Delta_i_hats, axis=0)
+        comm.Gather(send_buff, recv_buff, root=0)
 
-        assert len(Delta_hat) == d
-        g_hat = h + Delta_hat
-        h += gamma_0 * Delta_hat
-        w -= lr * g_hat
+        print("recieve from workers:\n {0}".format(recv_buff))
+
+        np.sum(a[1:, :], axis=0)
+
+        w  = generate_update(w, X, y, s_grad, la, gamma_0, it,batch=1)
+        #comm.Bcast(w)
 
         ws.append(np.copy(w))
-        information += n_workers * (2 * d + 64 * n_blocks)  # A rough estimate
-        information_sent.append(information)
+
         t = time.time() - t_start
         ts.append(time.time() - t_start)
         its.append(it)
@@ -190,7 +177,7 @@ if rank == 0:
     loss = logreg_loss(ws[::step], X, y, l1=0, l2=l2)
     np.save(logs_path + 'loss' + '_' + experiment, np.array(loss))
     np.save(logs_path + 'time' + '_' + experiment, np.array(ts[::step]))
-    np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
+    #np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
     np.save(logs_path + 'iteration' + '_' + experiment, np.array(its[::step]))
     np.save(logs_path + 'iterates' + '_' + experiment, np.array(ws[::step]))
     print(loss)
