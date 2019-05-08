@@ -32,15 +32,15 @@ def logreg_sgrad(w, x_i, y_i, la=0):
     assert len(loss_sgrad) == len(w)
     return loss_sgrad + la * w
 
-def sample_logreg_sgrad(w, X, y, mu=0, batch=1):
-    assert mu >= 0
+def sample_logreg_sgrad(w, X, y, la=0, batch=1):
+    assert la >= 0
     n, d = X.shape
     assert(len(w) == d)
     assert(len(y) == n)
     grad_sum = 0
     for b in range(batch):
         i = random.randrange(n)
-        grad_sum += logreg_sgrad(w, X[i], y[i], mu)
+        grad_sum += logreg_sgrad(w, X[i], y[i], la)
     return grad_sum / batch
 
 def f(x, A, y, la):
