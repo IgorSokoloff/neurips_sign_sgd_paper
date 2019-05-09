@@ -51,6 +51,7 @@ if (max_it is np.inf) and (max_t is np.inf):
 if dataset is None:
     dataset = "mushrooms"
 
+#print("dataset: {0}".format(dataset))
 
 ######################
 # This block varies between functions, options
@@ -166,7 +167,7 @@ if rank == 0:
     t = time.time() - t_start
 
     while (it < max_it) and (t < max_t):
-
+        print ("it: {0} , loss: {1}".format(it, func(w, X, y, la=L)))
         assert len(w) == d
         comm.Bcast(w)
 
@@ -184,8 +185,9 @@ if rank == 0:
 
         t = time.time() - t_start
         ts.append(time.time() - t_start)
-        its.append(it)
         it += 1
+        its.append(it)
+
 
     print('Master: sending signal to all workers to stop.')
     # Interrupt all workers
@@ -198,7 +200,17 @@ if rank == 0:
     np.save(logs_path + 'time' + '_' + experiment, np.array(ts))
     #np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
     np.save(logs_path + 'iteration' + '_' + experiment, np.array(its))
+    np.save(logs_path + 'iteration' + '_' + experiment, np.array(its/data_length_total))
     np.save(logs_path + 'iterates' + '_' + experiment, np.array(ws))
     print(loss)
+
+'''
+#just for test
+if rank == 0:
+    print ("loss: ",np.load(logs_path + 'loss' + '_' + experiment + ".npy"))
+    print("time: ", np.load(logs_path + 'time' + '_' + experiment + ".npy"))
+    print("iteration: ", np.load(logs_path + 'iteration' + '_' + experiment + ".npy"))
+    print("iterates: ", np.load(logs_path + 'iterates' + '_' + experiment + ".npy"))
+'''
 
 print("Rank %d is down" % rank)
