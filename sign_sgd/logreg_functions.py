@@ -8,13 +8,13 @@ from scipy.optimize import minimize
 
 supported_penalties = ['l1', 'l2']
 
-def logreg_loss(x, A, y, la):
+def logreg_loss(w, A, y, la):
     assert la >= 0
     assert len(y) == A.shape[0]
-    assert len(x) == A.shape[1]
-    l = np.log(1 + np.exp(-A.dot(x) * y))
+    assert len(w) == A.shape[1]
+    l = np.log(1 + np.exp(-A.dot(w) * y))
     m = y.shape[0]
-    return np.sum(l) / m + la/2 * norm(x) ** 2
+    return np.sum(l) / m + la/2 * norm(w) ** 2
 
 def logreg_grad(w, X, y, la):
     assert la >= 0
@@ -43,8 +43,5 @@ def sample_logreg_sgrad(w, X, y, la=0, batch=1):
         grad_sum += logreg_sgrad(w, X[i], y[i], la)
     return grad_sum / batch
 
-def f(x, A, y, la):
-    assert ((y.shape[0] == A.shape[0]) & (x.shape[0] == A.shape[1]))
-    assert (la >= 0)
-    return logreg_loss(x, A, y, la)
+
 

@@ -109,7 +109,20 @@ Ls = data_info[2:]
 
 #print("Ls:{0}".format(Ls))
 
-experiment = 'sign_sgd_one_point_majority_{0}_{1}_{2}_{3}_{4}'.format(loss_func, stepsize, n_workers, gamma_0, batch)
+experiment_name = "sign_sgd_one_point_majority"
+
+experiment = '{0}_{1}_{2}_{3}_{4}_{5}'.format(experiment_name, loss_func, stepsize, n_workers, gamma_0, batch)
+
+
+#save data of the experiment to disk
+info_str = [experiment_name, project_path, logs_path, dataset, loss_func]
+
+np.save(logs_path + 'info_number', np.array([stepsize, n_workers, gamma_0, batch]))
+
+with open(logs_path + 'info_str.txt', 'w') as filehandle:
+    for listitem in info_str:
+        filehandle.write('%s\n' % listitem)
+
 
 if rank == 0:
     X = np.load(data_path + 'X.npy')
@@ -153,7 +166,7 @@ if rank == 0:
     s_grad_sign = np.zeros(shape=d, dtype='int8')
 
     ws = [np.copy(w)]
-    information_sent = [0]
+
     ts = [0]
     its = [0]
 
@@ -200,17 +213,17 @@ if rank == 0:
     np.save(logs_path + 'time' + '_' + experiment, np.array(ts))
     #np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
     np.save(logs_path + 'iteration' + '_' + experiment, np.array(its))
-    np.save(logs_path + 'iteration' + '_' + experiment, np.array(its/data_length_total))
+    np.save(logs_path + 'epochs' + '_' + experiment, np.array(its)/data_length_total)
     np.save(logs_path + 'iterates' + '_' + experiment, np.array(ws))
     print(loss)
 
-'''
+
 #just for test
-if rank == 0:
-    print ("loss: ",np.load(logs_path + 'loss' + '_' + experiment + ".npy"))
-    print("time: ", np.load(logs_path + 'time' + '_' + experiment + ".npy"))
-    print("iteration: ", np.load(logs_path + 'iteration' + '_' + experiment + ".npy"))
-    print("iterates: ", np.load(logs_path + 'iterates' + '_' + experiment + ".npy"))
-'''
+#if rank == 0:
+#    print ("loss: ",np.load(logs_path + 'loss' + '_' + experiment + ".npy"))
+#    print("time: ", np.load(logs_path + 'time' + '_' + experiment + ".npy"))
+#    print("iteration: ", np.load(logs_path + 'iteration' + '_' + experiment + ".npy"))
+#    print("iterates: ", np.load(logs_path + 'iterates' + '_' + experiment + ".npy"))
+
 
 print("Rank %d is down" % rank)
