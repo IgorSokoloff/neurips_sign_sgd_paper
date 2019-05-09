@@ -45,8 +45,8 @@ if max_t is None:
     max_t = np.inf
 if (max_it is np.inf) and (max_t is np.inf):
     raise ValueError('At least one stopping criterion must be specified')
-if (gamma_0 < 0) or (gamma_0 >= 1):
-    raise ValueError('gamma_0 values must lie within [0, 1) interval')
+#if (gamma_0 < 0) or (gamma_0 >= 1):
+ #   raise ValueError('gamma_0 values must lie within [0, 1) interval')
 
 if dataset is None:
     dataset = "mushrooms"
@@ -60,12 +60,19 @@ loss_func = "log-reg"
 stepsize = "var-step"
 
 def sample_sgrad(w, X, y, la, batch=1):
-    #if log loss
+    #if log-reg
     return sample_logreg_sgrad(w, X, y, la)
 
 def update_stepsize(gamma_0, it):
     #if var-step
     return gamma_0/np.sqrt(it + 1)
+
+def func(w, X, y, la):
+
+    assert ((y.shape[0] == X.shape[0]) & (w.shape[0] == X.shape[1]))
+    assert (la >= 0)
+    #if log-reg
+    return logreg_loss(w, X, y, la)
 
 #######################
 
@@ -83,14 +90,23 @@ def generate_update(w, X, y, s_grad, la, gamma_0, it,batch=1):
 n_workers = comm.Get_size() - 1
 user_dir = os.path.expanduser('~/')
 
-project_path = "/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd"
-logs_path = project_path + 'logs_{}/'.format(dataset)
-data_path = project_path + "/data/"
+project_path = "/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/"
+
+logs_path = project_path + "logs_{0}/".format(dataset)
+data_path = project_path + "data/"
+
+if not os.path.exists(logs_path):
+    os.makedirs(logs_path)
+
+if not os.path.exists(data_path):
+    os.makedirs(data_path)
 
 data_info = np.load(data_path + 'data_info.npy')
 
 N, L = data_info[:2]
 Ls = data_info[2:]
+
+#print("Ls:{0}".format(Ls))
 
 experiment = 'sign_sgd_one_point_majority_{0}_{1}_{2}_{3}_{4}'.format(loss_func, stepsize, n_workers, gamma_0, batch)
 
@@ -98,8 +114,11 @@ if rank == 0:
     X = np.load(data_path + 'X.npy')
     y = np.load(data_path + 'y.npy')
     N_X, d = X.shape
+
+    #print(lipschitz_constant)
+
     data_length_total = comm.reduce(0)
-    print("data_length_total: {0}; lambda: {1}", data_length_total, L)
+    #print("data_length_total: {0}; lambda: {1}", data_length_total, L)
 
     #assert data_length_total == N, (N, data_length_total)
     #assert N_X == N
@@ -118,11 +137,11 @@ if rank > 0:
         comm.Bcast(w, root=0) # get_w from server
         if np.isnan(w).any():
             break
-        print("rank: {0}; recieve from server: {1}".format(rank, w))
+        #print("rank: {0}; recieve from server: {1}".format(rank, w))
 
         s_grad_sign = sign(sample_sgrad(w, X, y, Ls[rank-1]))
 
-        print("rank: {0}; send to server: {1}".format(rank, s_grad_sign))
+        #print("rank: {0}; send to server: {1}".format(rank, s_grad_sign))
         comm.Gather(s_grad_sign, None, root=0)
         #grads[i] = np.copy(stoch_grad_w)
 
@@ -153,12 +172,13 @@ if rank == 0:
 
         comm.Gather(send_buff, recv_buff, root=0)
 
-        print("recieve from workers:\n {0}".format(recv_buff))
+        #print("recieve from workers:\n {0}".format(recv_buff))
 
-        np.sum(a[1:, :], axis=0)
+        s_grad_major_vote = sign(np.sum(recv_buff, axis=0))
 
-        w  = generate_update(w, X, y, s_grad, la, gamma_0, it,batch=1)
-        #comm.Bcast(w)
+        w  = generate_update(w, X, y, s_grad_major_vote, L, gamma_0, it,batch=1)
+        #print ("new_w: {0}".format(w))
+        comm.Bcast(w)
 
         ws.append(np.copy(w))
 
@@ -173,13 +193,12 @@ if rank == 0:
 
 if rank == 0:
     print("There were done", len(ws), "iterations")
-    step = len(ws) // 200 + 1
-    loss = logreg_loss(ws[::step], X, y, l1=0, l2=l2)
+    loss = np.array([func(ws[i], X, y, la=L) for i in range(len(ws)) ])
     np.save(logs_path + 'loss' + '_' + experiment, np.array(loss))
-    np.save(logs_path + 'time' + '_' + experiment, np.array(ts[::step]))
+    np.save(logs_path + 'time' + '_' + experiment, np.array(ts))
     #np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
-    np.save(logs_path + 'iteration' + '_' + experiment, np.array(its[::step]))
-    np.save(logs_path + 'iterates' + '_' + experiment, np.array(ws[::step]))
+    np.save(logs_path + 'iteration' + '_' + experiment, np.array(its))
+    np.save(logs_path + 'iterates' + '_' + experiment, np.array(ws))
     print(loss)
 
 print("Rank %d is down" % rank)
