@@ -39,8 +39,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_svmlight_file
 
 parser = argparse.ArgumentParser(description='Generate data and provide information about it for workers and parameter server')
-parser.add_argument('--n_workers', action='store', dest='n_workers', type=int, default=4, help='Number of workers that will be used')
-parser.add_argument('--dataset', action='store', dest='dataset', default='real-sim', help='The name of the dataset')
+parser.add_argument('--n_workers', action='store', dest='n_workers', type=int, default=3, help='Number of workers that will be used')
+parser.add_argument('--dataset', action='store', dest='dataset', default='mushrooms', help='The name of the dataset')
 parser.add_argument('-b', action='store_true', dest='big_reg', help='Whether to use 1/N regularization or 0.1/N')
 parser.add_argument('--dimension', action='store', dest='dimension', type=int, default=300, help='Dimension for generating artifical data')
 parser.add_argument('-l', action='store_true', dest='logistic', help='The problem is logistic regression')
@@ -57,6 +57,11 @@ data_name = "mushrooms.txt"
 user_dir = os.path.expanduser('~/')
 SCRIPTS_PATH = '/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/data/'
 DATA_PATH = '/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/data/'
+
+
+project_path = "/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/"
+data_path = project_path + "data_{0}_{1}/".format(dataset, n_workers)
+
 
 def generate_data(d, min_cond=1e2, max_cond=1e4, diagonal=False):
     if diagonal:
@@ -93,23 +98,30 @@ X_test = test_feature_matrix
 y_test = test_labels
 
 C = np.linspace(0.01, 1, 10)
-param_grid_l2 = {'C': C, 'solver':['saga']}
+param_grid_l2 = {'C': C, 'solver':['lbfgs']}
 cv = StratifiedKFold( n_splits=5, shuffle=True, random_state=0)
-est_l2 = LogisticRegression(penalty='l2', max_iter=10000)
+est_l2 = LogisticRegression(penalty='l2', max_iter=1000000)
 
 opt_l2 = GridSearchCV(est_l2, param_grid_l2, scoring = 'accuracy', cv=cv)
 opt_l2.fit(train_feature_matrix, train_labels)
 
+clf = LogisticRegression(penalty='l2', max_iter=1000000, C=opt_l2.best_params_['C'], solver='lbfgs')
+
+clf.fit(train_feature_matrix, train_labels)
+
 data_len = len(labels)
+
+train_data_len = X.shape[0]
 
 print('Number of data points:', data_len)
 
-sep_idx = [0] + [(data_len * i) // n_workers for i in range(1, n_workers)] + [data_len]
+sep_idx = [0] + [(train_data_len * i) // n_workers for i in range(1, n_workers)] + [train_data_len]
 # sep_idx = np.arange(0, n_workers * 100 + 1, 100)
 
 la = 1 / opt_l2.best_params_['C']
 
 data_info = [sep_idx[-1], la]
+
 
 for i in range(n_workers):
     print('Creating chunk number', i + 1)
@@ -121,17 +133,19 @@ for i in range(n_workers):
         data_info.append(la)
 
 # Remove old data
-# os.system("bash -c 'rm {0}/Xs*'".format(SCRIPTS_PATH))
-# os.system("bash -c 'rm {0}/ys*'".format(SCRIPTS_PATH))
+# os.system("bash -c 'rm {0}/Xs*'".format(data_path))
+# os.system("bash -c 'rm {0}/ys*'".format(data_path))
 
 # Save data for master
-np.save(SCRIPTS_PATH + 'X', X)
-np.save(SCRIPTS_PATH + 'y', y)
-np.save(SCRIPTS_PATH + 'X_test', X_test)
-np.save(SCRIPTS_PATH + 'y_test', y_test)
+np.save(data_path + 'X', X)
+np.save(data_path + 'y', y)
+np.save(data_path + 'X_test', X_test)
+np.save(data_path + 'y_test', y_test)
+
+np.save(data_path + 'clf_coef', clf.coef_[0])
 
 # Save data for workers
 for worker in range(n_workers):
-    np.save(SCRIPTS_PATH + 'Xs_' + str(worker), Xs[worker])
-    np.save(SCRIPTS_PATH + 'ys_' + str(worker), ys[worker])
-    np.save(SCRIPTS_PATH + 'data_info', data_info)
+    np.save(data_path + 'Xs_' + str(worker), Xs[worker])
+    np.save(data_path + 'ys_' + str(worker), ys[worker])
+    np.save(data_path + 'data_info', data_info)

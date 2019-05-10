@@ -43,5 +43,3 @@ def sample_logreg_sgrad(w, X, y, la=0, batch=1):
         grad_sum += logreg_sgrad(w, X[i], y[i], la)
     return grad_sum / batch
 
-
-

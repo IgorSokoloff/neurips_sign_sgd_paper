@@ -136,7 +136,7 @@ experiment_name = "sign_sgd_majority"
 
 experiment = '{0}_{1}_{2}_{3}_{4}_{5}_{6}'.format(experiment_name, upd_option,loss_func, step_type, n_workers, myrepr(gamma_0), batch)
 
-logs_path = project_path + "logs_{0}_{1}/".format(dataset,experiment)
+logs_path = project_path + "logs_{0}_{1}/".format(dataset, experiment)
 data_path = project_path + "data_{0}_{1}/".format(dataset, n_workers)
 
 if not os.path.exists(logs_path):
@@ -158,7 +158,7 @@ experiment = '{0}_{1}_{2}_{3}_{4}_{5}_{6}'.format(experiment_name, upd_option,lo
 
 
 #save data of the experiment to disk
-info_str = [experiment_name, project_path, logs_path, dataset, loss_func]
+info_str = [experiment_name, project_path, logs_path, dataset, loss_func, upd_option]
 
 np.save(logs_path + 'info_number' + "_" + experiment, np.array([step_type, n_workers, gamma_0, batch]))
 
@@ -205,7 +205,8 @@ if rank > 0:
 
 if rank == 0:
     #w = np.zeros(d)
-    w = np.random.uniform(low=-10, high=10, size=d)
+    #w = np.random.uniform(low=-10, high=10, size=d)
+    w = np.random.normal(loc=0.0, scale=1.0, size=d)
     s_grad_sign = np.zeros(shape=d, dtype='int8')
 
     ws = [np.copy(w)]
@@ -238,6 +239,8 @@ if rank == 0:
         comm.Bcast(w)
 
         ws.append(np.copy(w))
+
+
 
         t = time.time() - t_start
         ts.append(time.time() - t_start)
