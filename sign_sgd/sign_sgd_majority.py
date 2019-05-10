@@ -91,11 +91,12 @@ def sample_sgrad(w, X, y, la, batch=1):
     else:
         raise ValueError ('wrong loss_func')
 
-def update_stepsize(gamma_0, it):
+
+def update_stepsize(gamma_0, it, power_step):
     if step_type == "var-step":
         return gamma_0/np.sqrt(it + 1)
     elif step_type == "fix-step":
-        return gamma_0
+        return gamma_0/(2**power_step)
     else:
         raise ValueError ('wrong step_type')
 
@@ -111,16 +112,21 @@ def func(w, X, y, la):
     else:
         raise ValueError ('wrong loss_func')
 
-def generate_update(w, X, y, s_grad, la, gamma_0, it,batch=1):
-    gamma = update_stepsize(gamma_0, it)
+
+def generate_update(w, X, y, loss_cur, power_step,  s_grad, la, gamma_0, it, batch=1):
+    gamma = update_stepsize(gamma_0, it, power_step)
     w_new = w - gamma * sign(s_grad)
+    loss_new = func(w_new, X, y, la=la)
+    if step_type == "fix-step":
+        if loss_new > loss_cur:
+            power_step += 1
     if upd_option == "one-point":
-        return w_new
+        return w_new, power_step
     elif upd_option == "two-point":
-        if func(w_new, X, y, la=L) <= func(w, X, y, la=L):
-            return w_new
+        if loss_new <= loss_cur:
+            return w_new, power_step
         else:
-            return w
+            return w, power_step
     else:
         raise ValueError('wrong upd_option')
 
@@ -206,10 +212,13 @@ if rank > 0:
 if rank == 0:
     #w = np.zeros(d)
     #w = np.random.uniform(low=-10, high=10, size=d)
-    w = np.random.normal(loc=0.0, scale=1.0, size=d)
+    w = np.random.normal(loc=0.0, scale=5.0, size=d)
     s_grad_sign = np.zeros(shape=d, dtype='int8')
 
     ws = [np.copy(w)]
+    loss = [func(ws[-1], X, y, la=L)]
+
+    power_step = 0
 
     ts = [0]
     its = [0]
@@ -234,13 +243,12 @@ if rank == 0:
 
         s_grad_major_vote = sign(np.sum(recv_buff[1:,:], axis=0))
 
-        w  = generate_update(w, X, y, s_grad_major_vote, L, gamma_0, it,batch=1)
+        w, power_step  = generate_update(w, X, y, loss[-1], power_step, s_grad_major_vote, L, gamma_0, it,batch=1)
         #print ("new_w: {0}".format(w))
         comm.Bcast(w)
 
         ws.append(np.copy(w))
-
-
+        loss.append(func(ws[-1], X, y, la=L))
 
         t = time.time() - t_start
         ts.append(time.time() - t_start)
@@ -254,7 +262,6 @@ if rank == 0:
 
 if rank == 0:
     print("There were done", len(ws), "iterations")
-    loss = np.array([func(ws[i], X, y, la=L) for i in range(len(ws)) ])
     np.save(logs_path + 'loss' + '_' + experiment, np.array(loss))
     np.save(logs_path + 'time' + '_' + experiment, np.array(ts))
     #np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
