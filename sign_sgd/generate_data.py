@@ -9,6 +9,9 @@ from numpy.random import normal, uniform
 from sklearn.datasets import make_spd_matrix, make_sparse_spd_matrix, load_svmlight_file
 from numpy.linalg import norm
 
+from logreg_functions import *
+from sigmoid_functions import *
+
 import sys
 
 import itertools
@@ -44,15 +47,18 @@ parser.add_argument('--dataset', action='store', dest='dataset', default='mushro
 parser.add_argument('-b', action='store_true', dest='big_reg', help='Whether to use 1/N regularization or 0.1/N')
 parser.add_argument('--dimension', action='store', dest='dimension', type=int, default=300, help='Dimension for generating artifical data')
 parser.add_argument('-l', action='store_true', dest='logistic', help='The problem is logistic regression')
+parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, default='log-reg',
+                    help='loss function ')
 
 args = parser.parse_args()
 n_workers = args.n_workers
 dataset = args.dataset
 big_reg = args.big_reg
 d = args.dimension
-logistic = True
 
-data_name = "mushrooms.txt"
+loss_func = args.loss_func
+
+data_name = dataset + ".txt"
 
 user_dir = os.path.expanduser('~/')
 SCRIPTS_PATH = '/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/data/'
@@ -97,6 +103,7 @@ y = train_labels
 X_test = test_feature_matrix
 y_test = test_labels
 
+"""
 C = np.linspace(0.01, 1, 10)
 param_grid_l2 = {'C': C, 'solver':['lbfgs']}
 cv = StratifiedKFold( n_splits=5, shuffle=True, random_state=0)
@@ -108,26 +115,40 @@ opt_l2.fit(train_feature_matrix, train_labels)
 clf = LogisticRegression(penalty='l2', max_iter=1000000, C=opt_l2.best_params_['C'], solver='lbfgs')
 
 clf.fit(train_feature_matrix, train_labels)
+"""
+
+
+X = np.array(train_feature_matrix)
+y = np.array(train_labels)
 
 data_len = len(labels)
-
 train_data_len = X.shape[0]
+
+#la = np.mean(np.diag(X.T @ X))
+
+la = 1
+
+f = lambda w: logreg_loss(w, X, y, la=la)
+grad = lambda w: logreg_grad(w, X, y, la)
+
+d = X.shape[1]
+
+w0 = np.random.normal(loc=0.0, scale=5.0, size=d)
+
+result = minimize (fun=f, x0=w0, jac=grad, method="L-BFGS-B",options={"maxiter":10000})
 
 print('Number of data points:', data_len)
 
 sep_idx = [0] + [(train_data_len * i) // n_workers for i in range(1, n_workers)] + [train_data_len]
 # sep_idx = np.arange(0, n_workers * 100 + 1, 100)
 
-la = 1 / opt_l2.best_params_['C']
-
 data_info = [sep_idx[-1], la]
-
 
 for i in range(n_workers):
     print('Creating chunk number', i + 1)
     start, end = sep_idx[i], sep_idx[i + 1]
     print(start, end)
-    if logistic:
+    if loss_func == 'log-reg':
         Xs.append(X[start:end])
         ys.append(y[start:end])
         data_info.append(la)
@@ -142,7 +163,7 @@ np.save(data_path + 'y', y)
 np.save(data_path + 'X_test', X_test)
 np.save(data_path + 'y_test', y_test)
 
-np.save(data_path + 'clf_coef', clf.coef_[0])
+np.save(data_path + 'clf_coef', result.x)
 
 # Save data for workers
 for worker in range(n_workers):

@@ -20,13 +20,13 @@ def logreg_grad(w, X, y, la):
     assert la >= 0
     assert (len(y) == X.shape[0])
     assert (len(w) == X.shape[1])
-    loss_grad = np.mean([logreg_sgrad(w, X[i], y[i]) for i in range(len(y))], axis=0)
+    loss_grad = np.mean([logreg_sgrad(w, X[i], y[i], la) for i in range(len(y))], axis=0)
     assert len(loss_grad) == len(w)
     return loss_grad + la * w
 
-def logreg_sgrad(w, x_i, y_i, la=0):
-    assert la >= 0
-    assert len(w) == len(x_i)
+def logreg_sgrad(w, x_i, y_i, la):
+    assert (la >= 0)
+    assert (len(w) == len(x_i))
     assert y_i in [-1, 1]
     loss_sgrad = - y_i * x_i / (1 + np.exp(y_i * np.dot(x_i, w)))
     assert len(loss_sgrad) == len(w)

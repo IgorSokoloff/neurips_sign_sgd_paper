@@ -23,10 +23,10 @@ parser.add_argument('--batch', action='store', dest='batch', type=int, default=1
 parser.add_argument('--dataset', action='store', dest='dataset', type=str, default='mushrooms',
                     help='Dataset name for saving logs')
 
-parser.add_argument('--step_type', action='store', dest='step_type', type=str, default='var_step',
+parser.add_argument('--step_type', action='store', dest='step_type', type=str, default='var-step',
                     help='variable or fixed stepsize ')
 
-parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, default='log_reg',
+parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, default='log-reg',
                     help='loss function ')
 
 parser.add_argument('--upd_option', action='store', dest='upd_option', type=str, default='one-point',
@@ -87,7 +87,7 @@ def sample_sgrad(w, X, y, la, batch=1):
     if loss_func == "log-reg":
         return sample_logreg_sgrad(w, X, y, la)
     elif loss_func == "sigmoid":
-        return sample_sigmoid_sgrad(w, X, y, la)
+        return sample_reg_bin_clf_sgrad(w, X, y, la)
     else:
         raise ValueError ('wrong loss_func')
 
@@ -108,7 +108,7 @@ def func(w, X, y, la):
     if loss_func == "log-reg":
         return logreg_loss(w, X, y, la)
     elif loss_func == "sigmoid":
-        return sigmoid_loss(w, X, y, la)
+        return reg_bin_clf_loss(w, X, y, la)
     else:
         raise ValueError ('wrong loss_func')
 
@@ -145,11 +145,11 @@ experiment = '{0}_{1}_{2}_{3}_{4}_{5}_{6}'.format(experiment_name, upd_option,lo
 logs_path = project_path + "logs_{0}_{1}/".format(dataset, experiment)
 data_path = project_path + "data_{0}_{1}/".format(dataset, n_workers)
 
-if not os.path.exists(logs_path):
-    os.makedirs(logs_path)
+if os.path.exists(logs_path) == False:
+    os.mkdir(logs_path)
 
-if not os.path.exists(data_path):
-    os.makedirs(data_path)
+if os.path.exists(data_path) == False:
+    os.mkdir(data_path)
 
 data_info = np.load(data_path + 'data_info.npy')
 
@@ -195,9 +195,11 @@ if rank > 0:
     it = 0
     #grads = [np.zeros(d) for i in range(n_i)] ????
 
-    while not np.isnan(w).any():
+    while (np.isnan(w).any() == False) and (it < max_it + 2):
+        comm.Barrier()
         comm.Bcast(w, root=0) # get_w from server
-        if np.isnan(w).any():
+        #print("rank: {0}; recieve from server: {1}".format(rank, w))
+        if np.isnan(w).any() == True:
             break
         #print("rank: {0}; recieve from server: {1}".format(rank, w))
 
@@ -212,7 +214,7 @@ if rank > 0:
 if rank == 0:
     #w = np.zeros(d)
     #w = np.random.uniform(low=-10, high=10, size=d)
-    w = np.random.normal(loc=0.0, scale=5.0, size=d)
+    w = np.random.normal(loc=0.0, scale=1.0, size=d)
     s_grad_sign = np.zeros(shape=d, dtype='int8')
 
     ws = [np.copy(w)]
@@ -233,10 +235,11 @@ if rank == 0:
     t = time.time() - t_start
 
     while (it < max_it) and (t < max_t):
-        print ("it: {0} , loss: {1}".format(it, func(w, X, y, la=L)))
+        #print ("it: {0} , loss: {1}".format(it, func(w, X, y, la=L)))
+        print("it: {0}".format(it))
         assert len(w) == d
         comm.Bcast(w)
-
+        comm.Barrier()
         comm.Gather(send_buff, recv_buff, root=0)
 
         #print("recieve from workers:\n {0}".format(recv_buff))
@@ -245,7 +248,7 @@ if rank == 0:
 
         w, power_step  = generate_update(w, X, y, loss[-1], power_step, s_grad_major_vote, L, gamma_0, it,batch=1)
         #print ("new_w: {0}".format(w))
-        comm.Bcast(w)
+        #comm.Bcast(w)
 
         ws.append(np.copy(w))
         loss.append(func(ws[-1], X, y, la=L))
@@ -258,7 +261,9 @@ if rank == 0:
 
     print('Master: sending signal to all workers to stop.')
     # Interrupt all workers
+    comm.Barrier()
     comm.Bcast(np.nan * np.zeros(d))
+
 
 if rank == 0:
     print("There were done", len(ws), "iterations")
