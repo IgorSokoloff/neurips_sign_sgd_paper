@@ -87,7 +87,7 @@ def sample_sgrad(w, X, y, la, batch=1):
     if loss_func == "log-reg":
         return sample_logreg_sgrad(w, X, y, la)
     elif loss_func == "sigmoid":
-        return sample_reg_bin_clf_sgrad(w, X, y, la)
+        return sample_reg_bin_clf_sgrad(w, X, y)
     else:
         raise ValueError ('wrong loss_func')
 
@@ -108,7 +108,7 @@ def func(w, X, y, la):
     if loss_func == "log-reg":
         return logreg_loss(w, X, y, la)
     elif loss_func == "sigmoid":
-        return reg_bin_clf_loss(w, X, y, la)
+        return reg_bin_clf_loss(w, X, y)
     else:
         raise ValueError ('wrong loss_func')
 
@@ -145,11 +145,12 @@ experiment = '{0}_{1}_{2}_{3}_{4}_{5}_{6}'.format(experiment_name, upd_option,lo
 logs_path = project_path + "logs_{0}_{1}/".format(dataset, experiment)
 data_path = project_path + "data_{0}_{1}/".format(dataset, n_workers)
 
-if os.path.exists(logs_path) == False:
-    os.mkdir(logs_path)
+if rank==0:
+    if os.path.exists(logs_path) == False:
+        os.makedirs(logs_path)
 
-if os.path.exists(data_path) == False:
-    os.mkdir(data_path)
+    if os.path.exists(data_path) == False:
+        os.mkdir(data_path)
 
 data_info = np.load(data_path + 'data_info.npy')
 
