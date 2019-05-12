@@ -45,6 +45,7 @@ step_type = args.step_type
 loss_func = args.loss_func
 upd_option = args.upd_option
 
+block = False
 
 #print("options", step_type, loss_func, upd_option, dataset)
 
@@ -178,6 +179,18 @@ if rank == 0:
     y = np.load(data_path + 'y.npy')
     N_X, d = X.shape
 
+    if os.path.isfile(data_path + 'w_init_{0}.npy'.format(loss_func)):
+        if loss_func == "log-reg":
+            w = np.random.normal(loc=0.0, scale=1.0, size=d)
+            np.save(data_path + 'w_init_{0}.npy'.format(loss_func), w)
+        elif loss_func == "sigmoid":
+            w = np.random.uniform(low=-10, high=10, size=d)
+            np.save(data_path + 'w_init_{0}.npy'.format(loss_func), w)
+        else:
+            raise ValueError('only two loss now is availible')
+    else:
+        w = np.array(np.load(data_path + 'w_init_{0}.npy'.format(loss_func)))
+
     #print(lipschitz_constant)
 
     data_length_total = comm.reduce(0)
@@ -187,8 +200,12 @@ if rank == 0:
     #assert N_X == N
 
 if rank > 0:
-    X = np.load(data_path + 'Xs_' + str(rank - 1) + '.npy')
-    y = np.load(data_path + 'ys_' + str(rank - 1) + '.npy')
+    if block:
+        X = np.load(data_path + 'Xs_' + str(rank - 1) + '.npy')
+        y = np.load(data_path + 'ys_' + str(rank - 1) + '.npy')
+    else:
+        X = np.load(data_path + 'X.npy')
+        y = np.load(data_path + 'y.npy')
     n_i, d = X.shape
 
     comm.reduce(n_i, root=0)
@@ -213,9 +230,6 @@ if rank > 0:
         it += 1
 
 if rank == 0:
-    #w = np.zeros(d)
-    #w = np.random.uniform(low=-10, high=10, size=d)
-    w = np.random.normal(loc=0.0, scale=1.0, size=d)
     s_grad_sign = np.zeros(shape=d, dtype='int8')
 
     ws = [np.copy(w)]
