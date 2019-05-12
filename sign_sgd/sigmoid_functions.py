@@ -13,7 +13,6 @@ def sigmoid (x):
 def sigmoid_grad (x):
     return np.divide(np.exp(-x), np.power((1 + np.exp(-x)),2))
 
-
 def reg_bin_clf_loss(w, A, y):
     assert len(y) == A.shape[0]
     assert len(w) == A.shape[1]

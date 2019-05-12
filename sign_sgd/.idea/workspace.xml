@@ -10,11 +10,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/generate_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="416">
-              <caret line="131" column="24" selection-start-line="131" selection-start-column="24" selection-end-line="131" selection-end-column="24" />
+            <state relative-caret-position="526">
+              <caret line="149" column="68" selection-start-line="149" selection-start-column="68" selection-end-line="149" selection-end-column="68" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -25,20 +25,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/logreg_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/sigmoid_functions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="26" column="75" lean-forward="true" selection-start-line="26" selection-start-column="75" selection-end-line="26" selection-end-column="75" />
+            <state relative-caret-position="765">
+              <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -47,10 +35,19 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/sigmoid_functions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sign_sgd_majority.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="666">
-              <caret line="153" selection-start-line="153" selection-end-line="153" />
+            <state relative-caret-position="-1913">
+              <caret line="110" column="40" selection-start-line="110" selection-start-column="40" selection-end-line="110" selection-end-column="40" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -69,13 +66,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>SCRIPTS_PATH</find>
-      <find>n_workers</find>
-      <find>uniform</find>
-      <find>unifor</find>
-      <find>info</find>
-      <find>loc</find>
-      <find>clf</find>
       <find>cls</find>
       <find>= {}</find>
       <find>func</find>
@@ -90,7 +80,6 @@
       <find>sigmoid_grad</find>
       <find>sigmoid_sgrad</find>
       <find>sample_sigmoid_sgrad</find>
-      <find>loss_func</find>
       <find>data</find>
       <find>data_path</find>
       <find>reg_bin_clf_loss</find>
@@ -98,7 +87,15 @@
       <find>la</find>
       <find>**</find>
       <find>mkdir</find>
+      <find>grad</find>
+      <find>f</find>
       <find>os.</find>
+      <find>sign_s</find>
+      <find>loss_func</find>
+      <find>(see here)</find>
+      <find>’</find>
+      <find>’ (see here)</find>
+      <find>‘</find>
     </findStrings>
     <replaceStrings>
       <replace>la</replace>
@@ -113,6 +110,9 @@
       <replace>reg_bin_clf_grad</replace>
       <replace>reg_bin_clf_sgrad</replace>
       <replace>sample_reg_bin_clf_sgrad</replace>
+      <replace>,</replace>
+      <replace>&quot;,</replace>
+      <replace>&quot;</replace>
     </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -124,15 +124,15 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/sign_sgd_one_point_majority_log-reg_var-step.py" />
         <option value="$PROJECT_DIR$/logreg_functions.py" />
-        <option value="$PROJECT_DIR$/generate_data.py" />
-        <option value="$PROJECT_DIR$/sigmoid_functions.py" />
         <option value="$PROJECT_DIR$/sign_sgd_majority.py" />
+        <option value="$PROJECT_DIR$/sigmoid_functions.py" />
+        <option value="$PROJECT_DIR$/generate_data.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="1280" />
-    <option name="y" value="22" />
+    <option name="y" value="23" />
     <option name="width" value="1280" />
     <option name="height" value="1337" />
   </component>
@@ -214,10 +214,10 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53845000" />
+    <option name="totallyTimeSpent" value="57878000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1280" y="22" width="1280" height="1337" extended-state="0" />
+    <frame x="1280" y="23" width="1280" height="1337" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.19386107" />
@@ -290,28 +290,8 @@
     <entry file="file://$PROJECT_DIR$/sign_sgd_one_point_majority_log-reg_var-step (2).py" />
     <entry file="file://$PROJECT_DIR$/logreg_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="35" column="18" selection-start-line="35" selection-start-column="18" selection-end-line="35" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sign_sgd_majority.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="666">
-          <caret line="153" selection-start-line="153" selection-end-line="153" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/generate_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="416">
-          <caret line="131" column="24" selection-start-line="131" selection-start-column="24" selection-end-line="131" selection-end-column="24" />
+        <state relative-caret-position="765">
+          <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -320,8 +300,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/sigmoid_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="26" column="75" lean-forward="true" selection-start-line="26" selection-start-column="75" selection-end-line="26" selection-end-column="75" />
+        <state>
+          <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sign_sgd_majority.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1913">
+          <caret line="110" column="40" selection-start-line="110" selection-start-column="40" selection-end-line="110" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/generate_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="526">
+          <caret line="149" column="68" selection-start-line="149" selection-start-column="68" selection-end-line="149" selection-end-column="68" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

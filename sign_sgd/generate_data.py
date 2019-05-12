@@ -126,16 +126,29 @@ train_data_len = X.shape[0]
 
 #la = np.mean(np.diag(X.T @ X))
 
-la = 1
-
-f = lambda w: logreg_loss(w, X, y, la=la)
-grad = lambda w: logreg_grad(w, X, y, la)
-
 d = X.shape[1]
-
+la = 1
 w0 = np.random.normal(loc=0.0, scale=5.0, size=d)
 
-result = minimize (fun=f, x0=w0, jac=grad, method="L-BFGS-B",options={"maxiter":10000})
+"""
+def f(w):
+    return func(w, X, y, la, loss_func)
+def grad(w):
+    return grad(w, X, y, la, loss_func)
+"""
+
+if loss_func == "log-reg":
+    f =    lambda w: logreg_loss(w, X, y)
+    grad = lambda w: logreg_grad(w, X, y)
+
+
+if loss_func == "sigmoid":
+    f =    lambda w: reg_bin_clf_loss(w, X, y)
+    grad = lambda w: reg_bin_clf_grad(w, X, y)
+
+
+result = minimize (fun=f, x0=w0, jac=grad, method="Powell",options={"maxiter":10000})
+
 
 print('Number of data points:', data_len)
 
@@ -148,10 +161,9 @@ for i in range(n_workers):
     print('Creating chunk number', i + 1)
     start, end = sep_idx[i], sep_idx[i + 1]
     print(start, end)
-    if loss_func == 'log-reg':
-        Xs.append(X[start:end])
-        ys.append(y[start:end])
-        data_info.append(la)
+    Xs.append(X[start:end])
+    ys.append(y[start:end])
+    data_info.append(la)
 
 # Remove old data
 # os.system("bash -c 'rm {0}/Xs*'".format(data_path))
@@ -163,10 +175,12 @@ np.save(data_path + 'y', y)
 np.save(data_path + 'X_test', X_test)
 np.save(data_path + 'y_test', y_test)
 
-np.save(data_path + 'clf_coef', result.x)
+np.save(data_path + "{0}_clf_coef".format(loss_func), result.x)
+np.save(data_path + "{0}_f_min".format(loss_func), result.fun)
 
 # Save data for workers
 for worker in range(n_workers):
     np.save(data_path + 'Xs_' + str(worker), Xs[worker])
     np.save(data_path + 'ys_' + str(worker), ys[worker])
     np.save(data_path + 'data_info', data_info)
+
