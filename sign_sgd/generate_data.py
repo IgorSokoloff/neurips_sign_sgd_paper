@@ -47,8 +47,9 @@ parser.add_argument('--dataset', action='store', dest='dataset', default='mushro
 parser.add_argument('-b', action='store_true', dest='big_reg', help='Whether to use 1/N regularization or 0.1/N')
 parser.add_argument('--dimension', action='store', dest='dimension', type=int, default=300, help='Dimension for generating artifical data')
 parser.add_argument('-l', action='store_true', dest='logistic', help='The problem is logistic regression')
-parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, default='log-reg',
-                    help='loss function ')
+
+#parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, default='log-reg',
+ #                   help='loss function ')
 
 args = parser.parse_args()
 n_workers = args.n_workers
@@ -56,8 +57,9 @@ dataset = args.dataset
 big_reg = args.big_reg
 d = args.dimension
 
-loss_func = args.loss_func
+#loss_func = args.loss_func
 
+loss_func_ar = ["log-reg", "sigmoid"]
 data_name = dataset + ".txt"
 
 user_dir = os.path.expanduser('~/')
@@ -136,18 +138,20 @@ def f(w):
 def grad(w):
     return grad(w, X, y, la, loss_func)
 """
-
-if loss_func == "log-reg":
-    f =    lambda w: logreg_loss(w, X, y)
-    grad = lambda w: logreg_grad(w, X, y)
-
-
-if loss_func == "sigmoid":
-    f =    lambda w: reg_bin_clf_loss(w, X, y)
-    grad = lambda w: reg_bin_clf_grad(w, X, y)
+for loss_func in loss_func_ar:
+    if loss_func == "log-reg":
+        f =    lambda w: logreg_loss(w, X, y, la)
+        grad = lambda w: logreg_grad(w, X, y, la)
 
 
-result = minimize (fun=f, x0=w0, jac=grad, method="Powell",options={"maxiter":10000})
+    if loss_func == "sigmoid":
+        f =    lambda w: reg_bin_clf_loss(w, X, y)
+        grad = lambda w: reg_bin_clf_grad(w, X, y)
+
+    result = minimize (fun=f, x0=w0, jac=grad, method="Powell",options={"maxiter":10000})
+    np.save(data_path + "{0}_clf_coef".format(loss_func), result.x)
+    np.save(data_path + "{0}_f_min".format(loss_func), result.fun)
+
 
 
 print('Number of data points:', data_len)
@@ -175,8 +179,7 @@ np.save(data_path + 'y', y)
 np.save(data_path + 'X_test', X_test)
 np.save(data_path + 'y_test', y_test)
 
-np.save(data_path + "{0}_clf_coef".format(loss_func), result.x)
-np.save(data_path + "{0}_f_min".format(loss_func), result.fun)
+
 
 # Save data for workers
 for worker in range(n_workers):

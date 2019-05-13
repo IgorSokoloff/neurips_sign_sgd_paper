@@ -32,6 +32,9 @@ parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, d
 parser.add_argument('--upd_option', action='store', dest='upd_option', type=str, default='one-point',
                     help='option 1 or option 2')
 
+parser.add_argument('--sampling_option', action='store', dest='sampling_option', type=str, default='non-block',
+                    help='block or nonblock')
+
 
 args = parser.parse_args()
 
@@ -44,8 +47,9 @@ dataset = args.dataset
 step_type = args.step_type
 loss_func = args.loss_func
 upd_option = args.upd_option
+sampling_option = args.sampling_option
 
-block = False
+relax_number = 5
 
 #print("options", step_type, loss_func, upd_option, dataset)
 
@@ -67,6 +71,9 @@ if upd_option not in ["one-point", "two-point"]:
 if loss_func not in ["log-reg", "sigmoid"]:
     raise ValueError('only two loss now is availible')
 
+if sampling_option not in ["block", "non-block"]:
+    raise ValueError('only block or non-block are availible')
+
 if dataset is None:
     dataset = "mushrooms"
 
@@ -80,6 +87,15 @@ def sign(arr):
     arr[arr==0] = 1
     arr = np.sign(arr)
     return arr.astype('int8')
+
+def get_std(arr, n):
+    assert (n >= 0)
+    arr = np.array(arr)
+    #assert (isinstance(arr, (np.ndarray, np.generic)))
+    if arr.shape[0] >=n:
+        return arr[-n:].std()
+    else:
+        return arr.std()
 
 ######################
 # This block varies between functions, options
@@ -97,7 +113,8 @@ def update_stepsize(gamma_0, it, power_step):
     if step_type == "var-step":
         return gamma_0/np.sqrt(it + 1)
     elif step_type == "fix-step":
-        return gamma_0/(2**power_step)
+        return gamma_0*(0.9**power_step)
+        #return gamma_0
     else:
         raise ValueError ('wrong step_type')
 
@@ -114,12 +131,13 @@ def func(w, X, y, la):
         raise ValueError ('wrong loss_func')
 
 
-def generate_update(w, X, y, loss_cur, power_step,  s_grad, la, gamma_0, it, batch=1):
+def generate_update(w, X, y, loss_ar, power_step,  s_grad, la, gamma_0, it, batch=1):
+    loss_cur = loss_ar[-1]
     gamma = update_stepsize(gamma_0, it, power_step)
     w_new = w - gamma * sign(s_grad)
     loss_new = func(w_new, X, y, la=la)
     if step_type == "fix-step":
-        if loss_new > loss_cur:
+        if get_std(loss_ar, relax_number):
             power_step += 1
     if upd_option == "one-point":
         return w_new, power_step
@@ -175,11 +193,12 @@ with open(logs_path + 'info_str' + "_" + experiment + '.txt', 'w') as filehandle
         filehandle.write('%s\n' % listitem)
 
 if rank == 0:
+    print (experiment)
     X = np.load(data_path + 'X.npy')
     y = np.load(data_path + 'y.npy')
     N_X, d = X.shape
 
-    if os.path.isfile(data_path + 'w_init_{0}.npy'.format(loss_func)):
+    if not os.path.isfile(data_path + 'w_init_{0}.npy'.format(loss_func)):
         if loss_func == "log-reg":
             w = np.random.normal(loc=0.0, scale=1.0, size=d)
             np.save(data_path + 'w_init_{0}.npy'.format(loss_func), w)
@@ -200,12 +219,14 @@ if rank == 0:
     #assert N_X == N
 
 if rank > 0:
-    if block:
+    if sampling_option == "block":
         X = np.load(data_path + 'Xs_' + str(rank - 1) + '.npy')
         y = np.load(data_path + 'ys_' + str(rank - 1) + '.npy')
-    else:
+    elif sampling_option == "non-block":
         X = np.load(data_path + 'X.npy')
         y = np.load(data_path + 'y.npy')
+    else:
+        raise ValueError('only block or non-block are availible')
     n_i, d = X.shape
 
     comm.reduce(n_i, root=0)
@@ -250,8 +271,8 @@ if rank == 0:
     t = time.time() - t_start
 
     while (it < max_it) and (t < max_t):
-        #print ("it: {0} , loss: {1}".format(it, func(w, X, y, la=L)))
-        print("it: {0}".format(it))
+        print ("it: {0} , loss: {1}, loss_std: {2}".format(it, loss[-1], get_std(loss, relax_number)))
+        #print("it: {0}".format(it))
         assert len(w) == d
         comm.Bcast(w)
         comm.Barrier()
@@ -261,7 +282,7 @@ if rank == 0:
 
         s_grad_major_vote = sign(np.sum(recv_buff[1:,:], axis=0))
 
-        w, power_step  = generate_update(w, X, y, loss[-1], power_step, s_grad_major_vote, L, gamma_0, it,batch=1)
+        w, power_step  = generate_update(w, X, y, loss, power_step, s_grad_major_vote, L, gamma_0, it,batch=1)
         #print ("new_w: {0}".format(w))
         #comm.Bcast(w)
 
