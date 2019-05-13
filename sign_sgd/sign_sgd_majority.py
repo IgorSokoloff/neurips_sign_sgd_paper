@@ -50,6 +50,7 @@ upd_option = args.upd_option
 sampling_option = args.sampling_option
 
 relax_number = 5
+std_eps = 1e-10
 
 #print("options", step_type, loss_func, upd_option, dataset)
 
@@ -137,7 +138,8 @@ def generate_update(w, X, y, loss_ar, power_step,  s_grad, la, gamma_0, it, batc
     w_new = w - gamma * sign(s_grad)
     loss_new = func(w_new, X, y, la=la)
     if step_type == "fix-step":
-        if get_std(loss_ar, relax_number):
+        #if get_std(loss_ar, relax_number) < std_eps and (it > relax_number):
+        if loss_new > loss_cur:
             power_step += 1
     if upd_option == "one-point":
         return w_new, power_step
