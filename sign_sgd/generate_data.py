@@ -48,9 +48,6 @@ parser.add_argument('-b', action='store_true', dest='big_reg', help='Whether to 
 parser.add_argument('--dimension', action='store', dest='dimension', type=int, default=300, help='Dimension for generating artifical data')
 parser.add_argument('-l', action='store_true', dest='logistic', help='The problem is logistic regression')
 
-#parser.add_argument('--loss_func', action='store', dest='loss_func', type=str, default='log-reg',
- #                   help='loss function ')
-
 args = parser.parse_args()
 n_workers = args.n_workers
 dataset = args.dataset
@@ -100,10 +97,10 @@ data_dense = data.todense()
 
 train_feature_matrix, test_feature_matrix, train_labels, test_labels = train_test_split(data_dense, enc_labels, test_size=0.2, random_state=0)
 
-X = train_feature_matrix
-y = train_labels
-X_test = test_feature_matrix
-y_test = test_labels
+X = np.array(train_feature_matrix)
+y = np.array(train_labels)
+X_test = np.array(test_feature_matrix)
+y_test = np.array(test_labels)
 
 """
 C = np.linspace(0.01, 1, 10)
@@ -142,13 +139,13 @@ for loss_func in loss_func_ar:
     if loss_func == "log-reg":
         f =    lambda w: logreg_loss(w, X, y, la)
         grad = lambda w: logreg_grad(w, X, y, la)
-
+        result = minimize(fun=f, x0=w0, jac=grad, method="L-BFGS-B", options={"maxiter": 10000})
 
     if loss_func == "sigmoid":
         f =    lambda w: reg_bin_clf_loss(w, X, y)
         grad = lambda w: reg_bin_clf_grad(w, X, y)
+        result = minimize (fun=f, x0=w0, jac=grad, method="Powell",options={"maxiter":10000})
 
-    result = minimize (fun=f, x0=w0, jac=grad, method="Powell",options={"maxiter":10000})
     np.save(data_path + "{0}_clf_coef".format(loss_func), result.x)
     np.save(data_path + "{0}_f_min".format(loss_func), result.fun)
 
@@ -178,7 +175,6 @@ np.save(data_path + 'X', X)
 np.save(data_path + 'y', y)
 np.save(data_path + 'X_test', X_test)
 np.save(data_path + 'y_test', y_test)
-
 
 
 # Save data for workers

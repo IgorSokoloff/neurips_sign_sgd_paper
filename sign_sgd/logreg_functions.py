@@ -37,9 +37,9 @@ def sample_logreg_sgrad(w, X, y, la=0, batch=1):
     n, d = X.shape
     assert(len(w) == d)
     assert(len(y) == n)
-    grad_sum = 0
+    grad_sum = np.zeros(d)
     for b in range(batch):
-        i = random.randrange(n)
+        i = random.randint(0, n - 1)
         grad_sum += logreg_sgrad(w, X[i], y[i], la)
     return grad_sum / batch
 

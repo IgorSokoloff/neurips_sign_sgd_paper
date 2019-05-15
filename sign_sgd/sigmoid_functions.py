@@ -42,6 +42,6 @@ def sample_reg_bin_clf_sgrad(w, X, y, batch=1):
     assert(len(y) == n)
     grad_sum = 0
     for b in range(batch):
-        i = random.randrange(n)
+        i = random.randint(0, n - 1)
         grad_sum += reg_bin_clf_sgrad(w, X[i], y[i])
     return grad_sum / batch
