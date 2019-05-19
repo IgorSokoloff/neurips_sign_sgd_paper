@@ -60,11 +60,11 @@ loss_func_ar = ["log-reg", "sigmoid"]
 data_name = dataset + ".txt"
 
 user_dir = os.path.expanduser('~/')
-SCRIPTS_PATH = '/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/data/'
-DATA_PATH = '/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/data/'
+SCRIPTS_PATH = '/Users/igorsokolov/Google_Drive/sign_sgd/data/'
+DATA_PATH = '/Users/igorsokolov/Google_Drive/sign_sgd/data/'
 
 
-project_path = "/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/"
+project_path = "/Users/igorsokolov/Google_Drive/sign_sgd/"
 data_path = project_path + "data_{0}_{1}/".format(dataset, n_workers)
 
 if not os.path.exists(data_path):

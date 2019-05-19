@@ -57,7 +57,7 @@ mpirun -n 21 python3 sign_sgd_majority.py --dataset australian --upd_option two-
 echo 96.43 %
 
 
-open /Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/logs_australian_sign_sgd_majority_one-point_log-reg_var-step_20_10,0_1/output_sign_sgd_majority_one-point_log-reg_var-step_20_10,0_1.txt
-open /Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/logs_australian_sign_sgd_majority_one-point_log-reg_fix-step_20_10,0_1/output_sign_sgd_majority_one-point_log-reg_fix-step_20_10,0_1.txt
-open /Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/logs_australian_sign_sgd_majority_two-point_log-reg_var-step_20_10,0_1/output_sign_sgd_majority_two-point_log-reg_var-step_20_10,0_1.txt
-open /Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/logs_australian_sign_sgd_majority_two-point_log-reg_fix-step_20_10,0_1/output_sign_sgd_majority_two-point_log-reg_fix-step_20_10,0_1.txt
+open /Users/igorsokolov/Google_Drive/sign_sgd/logs_australian_sign_sgd_majority_one-point_log-reg_var-step_20_10,0_1/output_sign_sgd_majority_one-point_log-reg_var-step_20_10,0_1.txt
+open /Users/igorsokolov/Google_Drive/sign_sgd/logs_australian_sign_sgd_majority_one-point_log-reg_fix-step_20_10,0_1/output_sign_sgd_majority_one-point_log-reg_fix-step_20_10,0_1.txt
+open /Users/igorsokolov/Google_Drive/sign_sgd/logs_australian_sign_sgd_majority_two-point_log-reg_var-step_20_10,0_1/output_sign_sgd_majority_two-point_log-reg_var-step_20_10,0_1.txt
+open /Users/igorsokolov/Google_Drive/sign_sgd/logs_australian_sign_sgd_majority_two-point_log-reg_fix-step_20_10,0_1/output_sign_sgd_majority_two-point_log-reg_fix-step_20_10,0_1.txt

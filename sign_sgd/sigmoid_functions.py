@@ -8,17 +8,15 @@ from scipy.optimize import minimize
 
 
 def sigmoid (x):
-    return np.divide (1, (1 + np.exp(-x)))
+    return np.true_divide (1, (1 + np.exp(-x)))
 
 def sigmoid_grad (x):
-    return np.divide(np.exp(-x), np.power((1 + np.exp(-x)),2))
+    return np.true_divide(np.exp(-x), np.power((1 + np.exp(-x)),2))
 
 def reg_bin_clf_loss(w, A, y):
-    assert len(y) == A.shape[0]
-    assert len(w) == A.shape[1]
-    l = np.power((1 - y * np.exp(sigmoid(A.dot(w)))),2)
-    m = y.shape[0]
-    return np.sum(l) / m
+    assert y.shape[0] == A.shape[0]
+    assert w.shape[0] == A.shape[1]
+    return np.mean(np.power((1 - y * np.exp(sigmoid(A.dot(w)))),2))
 
 def reg_bin_clf_grad(w, X, y):
     assert (len(y) == X.shape[0])

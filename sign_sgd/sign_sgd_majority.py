@@ -157,7 +157,7 @@ def generate_update(w, X, y, loss_ar, power_step,  s_grad, la, gamma_0, it, loss
 n_workers = comm.Get_size() - 1
 user_dir = os.path.expanduser('~/')
 
-project_path = "/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/"
+project_path = "/Users/igorsokolov/Google_Drive/sign_sgd/"
 
 experiment_name = "sign_sgd_majority"
 
