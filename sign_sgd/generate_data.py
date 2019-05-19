@@ -67,6 +67,8 @@ DATA_PATH = '/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/sig
 project_path = "/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/"
 data_path = project_path + "data_{0}_{1}/".format(dataset, n_workers)
 
+if not os.path.exists(data_path):
+    os.mkdir(data_path)
 
 def generate_data(d, min_cond=1e2, max_cond=1e4, diagonal=False):
     if diagonal:
@@ -89,11 +91,13 @@ Xs = []
 ys = []
 
 data, labels = load_svmlight_file(DATA_PATH + data_name)
-
 enc_labels = labels.copy()
-enc_labels[enc_labels==1] = -1
-enc_labels[enc_labels==2] = 1
 data_dense = data.todense()
+
+if not np.array_equal( np.unique(labels), np.array([-1,1],dtype='float')):
+    enc_labels = labels.copy()
+    enc_labels[enc_labels==1] = -1
+    enc_labels[enc_labels==2] = 1
 
 train_feature_matrix, test_feature_matrix, train_labels, test_labels = train_test_split(data_dense, enc_labels, test_size=0.2, random_state=0)
 

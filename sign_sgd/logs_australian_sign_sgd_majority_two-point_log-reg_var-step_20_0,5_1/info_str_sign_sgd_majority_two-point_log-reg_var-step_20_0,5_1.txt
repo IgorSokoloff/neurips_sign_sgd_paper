@@ -1,0 +1,6 @@
+sign_sgd_majority
+/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/
+/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/logs_australian_sign_sgd_majority_two-point_log-reg_var-step_20_0,5_1/
+australian
+log-reg
+two-point

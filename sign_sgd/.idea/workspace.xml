@@ -10,11 +10,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/generate_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="526">
-              <caret line="149" column="68" selection-start-line="149" selection-start-column="68" selection-end-line="149" selection-end-column="68" />
+            <state relative-caret-position="1391">
+              <caret line="140" column="30" selection-start-line="140" selection-start-column="30" selection-end-line="140" selection-end-column="30" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -26,7 +26,7 @@
         <entry file="file://$PROJECT_DIR$/logreg_functions.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="765">
-              <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
+              <caret line="45" selection-start-line="45" selection-end-line="45" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -37,17 +37,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sigmoid_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
+            <state relative-caret-position="782">
+              <caret line="46" column="27" selection-start-line="46" selection-start-column="27" selection-end-line="46" selection-end-column="27" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/sign_sgd_majority.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1913">
-              <caret line="110" column="40" selection-start-line="110" selection-start-column="40" selection-end-line="110" selection-end-column="40" />
+            <state relative-caret-position="399">
+              <caret line="112" column="45" lean-forward="true" selection-start-line="112" selection-start-column="45" selection-end-line="112" selection-end-column="45" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -66,22 +69,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>cls</find>
-      <find>= {}</find>
-      <find>func</find>
-      <find>d</find>
-      <find>dataset</find>
-      <find>data_name</find>
-      <find>log_</find>
-      <find>logistic</find>
-      <find>normal</find>
-      <find>repr</find>
-      <find>sigmoid_loss</find>
-      <find>sigmoid_grad</find>
-      <find>sigmoid_sgrad</find>
-      <find>sample_sigmoid_sgrad</find>
-      <find>data</find>
-      <find>data_path</find>
       <find>reg_bin_clf_loss</find>
       <find>sigmoid</find>
       <find>la</find>
@@ -89,13 +76,29 @@
       <find>mkdir</find>
       <find>grad</find>
       <find>f</find>
-      <find>os.</find>
       <find>sign_s</find>
-      <find>loss_func</find>
       <find>(see here)</find>
       <find>’</find>
+      <find>uniform</find>
+      <find>raise</find>
+      <find>save</find>
+      <find>availi</find>
+      <find>block</find>
+      <find>loss</find>
+      <find>loss</find>
+      <find>update</find>
+      <find>os.</find>
+      <find>data_path</find>
+      <find>non</find>
+      <find>loss_func</find>
+      <find>result</find>
       <find>’ (see here)</find>
       <find>‘</find>
+      <find>print</find>
+      <find>power_step</find>
+      <find>generate_update</find>
+      <find>5</find>
+      <find>std_eps</find>
     </findStrings>
     <replaceStrings>
       <replace>la</replace>
@@ -124,9 +127,9 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/sign_sgd_one_point_majority_log-reg_var-step.py" />
         <option value="$PROJECT_DIR$/logreg_functions.py" />
-        <option value="$PROJECT_DIR$/sign_sgd_majority.py" />
         <option value="$PROJECT_DIR$/sigmoid_functions.py" />
         <option value="$PROJECT_DIR$/generate_data.py" />
+        <option value="$PROJECT_DIR$/sign_sgd_majority.py" />
       </list>
     </option>
   </component>
@@ -214,13 +217,13 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57878000" />
+    <option name="totallyTimeSpent" value="67011000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="23" width="1280" height="1337" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.19386107" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19386107" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -288,27 +291,20 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/sign_sgd_one_point_majority_log-reg_var-step (2).py" />
-    <entry file="file://$PROJECT_DIR$/logreg_functions.py">
+    <entry file="file://$PROJECT_DIR$/sigmoid_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="765">
-          <caret line="45" lean-forward="true" selection-start-line="45" selection-end-line="45" />
+        <state relative-caret-position="782">
+          <caret line="46" column="27" selection-start-line="46" selection-start-column="27" selection-end-line="46" selection-end-column="27" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sigmoid_functions.py">
+    <entry file="file://$PROJECT_DIR$/logreg_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="18" lean-forward="true" selection-start-column="18" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sign_sgd_majority.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1913">
-          <caret line="110" column="40" selection-start-line="110" selection-start-column="40" selection-end-line="110" selection-end-column="40" />
+        <state relative-caret-position="765">
+          <caret line="45" selection-start-line="45" selection-end-line="45" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
@@ -317,8 +313,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/generate_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="526">
-          <caret line="149" column="68" selection-start-line="149" selection-start-column="68" selection-end-line="149" selection-end-column="68" />
+        <state relative-caret-position="1391">
+          <caret line="140" column="30" selection-start-line="140" selection-start-column="30" selection-end-line="140" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sign_sgd_majority.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="112" column="45" lean-forward="true" selection-start-line="112" selection-start-column="45" selection-end-line="112" selection-end-column="45" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

@@ -57,7 +57,7 @@ std_eps = 1e-10
 
 loss_functions = ["log-reg", "sigmoid"]
 
-#print("options", step_type, loss_func, upd_option, dataset)
+#print("options:", dataset)
 
 if max_it is None:
     max_it = np.inf
@@ -79,9 +79,6 @@ if loss_func not in loss_functions:
 
 if sampling_option not in ["block", "non-block"]:
     raise ValueError('only block or non-block are availible')
-
-if dataset is None:
-    dataset = "mushrooms"
 
 #print("dataset: {0}".format(dataset))
 
@@ -208,11 +205,12 @@ experiment = '{0}_{1}_{2}_{3}_{4}_{5}_{6}'.format(experiment_name, upd_option,lo
 #save data of the experiment to disk
 info_str = [experiment_name, project_path, logs_path, dataset, loss_func, upd_option]
 
-np.save(logs_path + 'info_number' + "_" + experiment, np.array([step_type, n_workers, gamma_0, batch]))
+if rank == 0:
+    np.save(logs_path + 'info_number' + "_" + experiment, np.array([step_type, n_workers, gamma_0, batch]))
 
-with open(logs_path + 'info_str' + "_" + experiment + '.txt', 'w') as filehandle:
-    for listitem in info_str:
-        filehandle.write('%s\n' % listitem)
+    with open(logs_path + 'info_str' + "_" + experiment + '.txt', 'w') as filehandle:
+        for listitem in info_str:
+            filehandle.write('%s\n' % listitem)
 
 if rank == 0:
 
@@ -262,15 +260,15 @@ if rank > 0:
         if np.isnan(w).any():
             break
         # print("rank: {0}; recieve from server: {1}".format(rank, w))
+        sample_sgd = sample_sgrad(w, X, y, Ls[rank - 1], loss_func)
+        s_grad_sign = sign(sample_sgd)
 
-        s_grad_sign = sign(sample_sgrad(w, X, y,Ls[rank-1], loss_func))
-
-        #print("rank: {0}; send to server: {1}".format(rank, s_grad_sign[:6]))
+        #print("rank: {0}; it:{2} sgd: {1}".format(rank, sample_sgd[:5], it))
+        #print("rank: {0}; send to server: {1}".format(rank, s_grad_sign[:5]))
         comm.Gather(s_grad_sign, None, root=0)
 
 
         it += 1
-
 
 
 if rank == 0:
@@ -310,11 +308,11 @@ if rank == 0:
                 #comm.Barrier()
                 comm.Gather(send_buff, recv_buff, root=0)
 
-                #print("recieve from workers:\n {0}".format(recv_buff[:,:6]))
+                #print("recieve from workers:\n {0}".format(recv_buff[:,:5]))
 
                 s_grad_major_vote = sign(np.sum(recv_buff[1:,:], axis=0))
 
-                #print("s_grad_major_vote:\n {0}".format(s_grad_major_vote[:6]))
+                #print("s_grad_major_vote:\n {0}".format(s_grad_major_vote[:5]))
 
                 w, power_step  = generate_update(w, X, y, loss, power_step, s_grad_major_vote, L, gamma_0, it, loss_func,step_type,upd_option, batch=1)
                 #print ("new_w: {0}".format(w))

@@ -8,11 +8,11 @@ from scipy.optimize import minimize
 
 supported_penalties = ['l1', 'l2']
 
-def logreg_loss(w, A, y, la):
+def logreg_loss(w, X, y, la):
     assert la >= 0
-    assert len(y) == A.shape[0]
-    assert len(w) == A.shape[1]
-    l = np.log(1 + np.exp(-A.dot(w) * y))
+    assert len(y) == X.shape[0]
+    assert len(w) == X.shape[1]
+    l = np.log(1 + np.exp(-X.dot(w) * y))
     m = y.shape[0]
     return np.sum(l) / m + la/2 * norm(w) ** 2
 
@@ -28,7 +28,7 @@ def logreg_sgrad(w, x_i, y_i, la):
     assert (la >= 0)
     assert (len(w) == len(x_i))
     assert y_i in [-1, 1]
-    loss_sgrad = - y_i * x_i / (1 + np.exp(y_i * np.dot(x_i, w)))
+    loss_sgrad = - y_i * x_i / (1 + np.exp(-y_i * np.dot(x_i, w)))
     assert len(loss_sgrad) == len(w)
     return loss_sgrad + la * w
 
@@ -40,6 +40,10 @@ def sample_logreg_sgrad(w, X, y, la=0, batch=1):
     grad_sum = np.zeros(d)
     for b in range(batch):
         i = random.randint(0, n - 1)
+        #print("i: {0}".format(i))
+        #print("X[i].shape: {0}, y[i].shape: {1}".format(X[i].shape, y[i].shape))
+        #print("X[i]: {0}, y[i]: {1}".format(X[i][:5], y[i]))
         grad_sum += logreg_sgrad(w, X[i], y[i], la)
+        #print("logreg_sgrad: {0}".format(grad_sum[:6]))
     return grad_sum / batch
 
