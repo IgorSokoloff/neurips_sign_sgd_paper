@@ -115,7 +115,7 @@ def update_stepsize(gamma_0, it, power_step, step_type):
     if step_type == "var-step":
         return gamma_0/np.sqrt(it + 1)
     elif step_type == "fix-step":
-        return gamma_0*(0.9**power_step)
+        return gamma_0*(1**power_step)
         #return gamma_0
     else:
         raise ValueError ('wrong step_type')
@@ -144,7 +144,7 @@ def generate_update(w, X, y, loss_ar, power_step,  s_grad, la, gamma_0, it, loss
     if upd_option == "one-point":
         return w_new, power_step
     elif upd_option == "two-point":
-        if loss_new <= loss_cur:
+        if loss_new < loss_cur:
             return w_new, power_step
         else:
             return w, power_step
@@ -222,14 +222,21 @@ if rank == 0:
         if loss_func == "log-reg":
             #w = np.random.normal(loc=0.0, scale=1.0, size=d)
             w = np.random.uniform(low=-100, high=100, size=d)
+
             np.save(data_path + 'w_init_{0}.npy'.format(loss_func), w)
         elif loss_func == "sigmoid":
-            w = np.random.uniform(low=-100, high=100, size=d)
+            #w = np.random.uniform(low=-100, high=100, size=d)
+            w = np.full(shape=d, fill_value=1000.0)
+            print("w: {0}".format(w))
+            #w = np.random.normal(loc=0.0, scale=1.0, size=d)
             np.save(data_path + 'w_init_{0}.npy'.format(loss_func), w)
         else:
             raise ValueError('only two loss now is availible')
     else:
         w = np.array(np.load(data_path + 'w_init_{0}.npy'.format(loss_func)))
+        print("w: {0}".format(w))
+
+
 
     data_length_total = N_X
 
@@ -272,6 +279,7 @@ if rank > 0:
 
 
 if rank == 0:
+    print(experiment)
     with open(logs_path + 'output' + '_' + experiment + ".txt", 'w') as f:
         with redirect_stdout(f):
             currentDT = datetime.datetime.now()

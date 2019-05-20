@@ -95,9 +95,10 @@ enc_labels = labels.copy()
 data_dense = data.todense()
 
 if not np.array_equal( np.unique(labels), np.array([-1,1],dtype='float')):
-    enc_labels = labels.copy()
-    enc_labels[enc_labels==1] = -1
-    enc_labels[enc_labels==2] = 1
+    min_label = min(np.unique(enc_labels))
+    max_label = max(np.unique(enc_labels))
+    enc_labels[enc_labels==min_label] = -1
+    enc_labels[enc_labels==max_label] = 1
 
 train_feature_matrix, test_feature_matrix, train_labels, test_labels = train_test_split(data_dense, enc_labels, test_size=0.2, random_state=0)
 

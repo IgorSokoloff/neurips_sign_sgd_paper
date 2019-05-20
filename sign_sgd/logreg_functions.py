@@ -40,10 +40,6 @@ def sample_logreg_sgrad(w, X, y, la=0, batch=1):
     grad_sum = np.zeros(d)
     for b in range(batch):
         i = random.randint(0, n - 1)
-        #print("i: {0}".format(i))
-        #print("X[i].shape: {0}, y[i].shape: {1}".format(X[i].shape, y[i].shape))
-        #print("X[i]: {0}, y[i]: {1}".format(X[i][:5], y[i]))
         grad_sum += logreg_sgrad(w, X[i], y[i], la)
-        #print("logreg_sgrad: {0}".format(grad_sum[:6]))
     return grad_sum / batch
 
