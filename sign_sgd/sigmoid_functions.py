@@ -38,7 +38,7 @@ def reg_bin_clf_sgrad(w, x_i, y_i):
 
     assert len(w) == len(x_i)
     assert y_i in [-1, 1]
-    loss_sgrad = np.divide(2 * y_i * x_i * np.exp(x_i @ w) * (np.exp(x_i @ w)*(y_i - 1) - 1), np.power(1 + np.exp(x_i @ w), 3))
+    loss_sgrad = np.true_divide(2 * y_i * x_i * np.exp(x_i @ w) * (np.exp(x_i @ w)*(y_i - 1) - 1), np.power(1 + np.exp(x_i @ w), 3))
     assert len(loss_sgrad) == len(w)
     return loss_sgrad
 
