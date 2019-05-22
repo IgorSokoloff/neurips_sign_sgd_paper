@@ -25,7 +25,7 @@ def sigmoid_grad (x):
 def reg_bin_clf_loss(w, X, y):
     assert y.shape[0] == X.shape[0]
     assert w.shape[0] == X.shape[1]
-    return np.mean(np.power((1 - y * np.exp(sigmoid(X.dot(w)))),2))
+    return np.mean(np.power((1 - y * sigmoid(X.dot(w))),2))
 
 def reg_bin_clf_grad(w, X, y):
     assert (len(y) == X.shape[0])

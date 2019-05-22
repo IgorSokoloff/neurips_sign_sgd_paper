@@ -132,6 +132,19 @@ def func(w, X, y, loss_func, la):
     else:
         raise ValueError ('wrong loss_func')
 
+def full_grad(w, X, y, loss_func, la):
+    assert ((y.shape[0] == X.shape[0]) & (w.shape[0] == X.shape[1]))
+    assert (la >= 0)
+    #print(type(loss_func))
+
+    if loss_func == "log-reg":
+        return logreg_grad(w, X, y, la)
+    elif loss_func == "sigmoid":
+        return reg_bin_clf_grad(w, X, y)
+    else:
+        raise ValueError ('wrong loss_func')
+
+
 def generate_update(w, X, y, loss_ar, power_step,  s_grad, la, gamma_0, it, loss_func, step_type, upd_option, batch=1):
     loss_cur = loss_ar[-1]
     gamma = update_stepsize(gamma_0, it, power_step, step_type)
@@ -255,6 +268,7 @@ if rank > 0:
     # here we will broadcast it from server
     w = np.zeros(d)
     it = 0
+    samples_sgd = []
     #grads = [np.zeros(d) for i in range(n_i)] ????
 
     while (np.isnan(w).any() == False):
@@ -268,6 +282,7 @@ if rank > 0:
             break
         # print("rank: {0}; recieve from server: {1}".format(rank, w))
         sample_sgd = sample_sgrad(w, X, y, Ls[rank - 1], loss_func)
+        samples_sgd.append(sample_sgd)
         s_grad_sign = sign(sample_sgd)
 
         #print("rank: {0}; it:{2} sgd: {1}".format(rank, sample_sgd[:5], it))
@@ -289,7 +304,7 @@ if rank == 0:
 
             ws = [np.copy(w)]
             loss = [func(ws[-1], X, y,loss_func, la=L)]
-
+            grads_full = [full_grad(ws[-1], X, y,loss_func, la=L)]
             power_step = 0
 
             ts = [0]
@@ -328,6 +343,7 @@ if rank == 0:
 
                 ws.append(np.copy(w))
                 loss.append(func(ws[-1], X, y,loss_func, la=L))
+                grads_full.append(full_grad(ws[-1], X, y, loss_func, la=L))
                 gammas.append(update_stepsize(gamma_0, it, power_step,step_type))
                 t = time.time() - t_start
                 ts.append(time.time() - t_start)
@@ -346,6 +362,8 @@ if rank == 0:
     np.save(logs_path + 'loss' + '_' + experiment, np.array(loss))
     np.save(logs_path + 'time' + '_' + experiment, np.array(ts))
     np.save(logs_path + 'gamma' + '_' + experiment, np.array(gammas))
+    np.save(logs_path + 'grads_full' + '_' + experiment, np.array(grads_full))
+
     #np.save(logs_path + 'information' + '_' + experiment, np.array(information_sent[::step]))
     np.save(logs_path + 'iteration' + '_' + experiment, np.array(its))
     np.save(logs_path + 'epochs' + '_' + experiment, np.array(its)/data_length_total)
@@ -360,5 +378,6 @@ if rank == 0:
 #    print("iteration: ", np.load(logs_path + 'iteration' + '_' + experiment + ".npy"))
 #    print("iterates: ", np.load(logs_path + 'iterates' + '_' + experiment + ".npy"))
 
-
+if rank >0:
+    np.save(logs_path + "samples_grad_rank_{0}".format(rank) + '_' + experiment, np.array(samples_sgd))
 print("Rank %d is down" % rank)

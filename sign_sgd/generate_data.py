@@ -132,7 +132,7 @@ train_data_len = X.shape[0]
 
 d = X.shape[1]
 la = 1
-w0 = np.random.normal(loc=0.0, scale=5.0, size=d)
+w0 = np.random.normal(loc=0.0, scale=1.0, size=d)
 
 """
 def f(w):
@@ -149,7 +149,7 @@ for loss_func in loss_func_ar:
     if loss_func == "sigmoid":
         f =    lambda w: reg_bin_clf_loss(w, X, y)
         grad = lambda w: reg_bin_clf_grad(w, X, y)
-        result = minimize (fun=f, x0=w0, jac=grad, method="Powell",options={"maxiter":10000})
+        result = minimize (fun=f, x0=w0, jac=grad, method="L-BFGS-B",options={"maxiter":10000})
 
     np.save(data_path + "{0}_clf_coef".format(loss_func), result.x)
     np.save(data_path + "{0}_f_min".format(loss_func), result.fun)
