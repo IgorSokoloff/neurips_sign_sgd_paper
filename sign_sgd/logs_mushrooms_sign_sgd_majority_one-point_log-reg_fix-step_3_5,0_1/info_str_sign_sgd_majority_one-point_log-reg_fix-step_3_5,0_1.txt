@@ -1,6 +1,0 @@
-sign_sgd_majority
-/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/
-/Users/igorsokolov/Yandex.Disk.localized/MIPT/Science/Richtarik/signSGD/experiments/sign_sgd/logs_mushrooms_sign_sgd_majority_one-point_log-reg_fix-step_3_5,0_1/
-mushrooms
-log-reg
-one-point
